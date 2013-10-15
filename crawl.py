@@ -5,7 +5,7 @@ from datetime import datetime
 import time
 import twitter
 
-def get_followers_friends(version, app, c, fr_dump, fo_dump, f_crawled, f_log):
+def get_followers_friends(version, app, c, fr_dump, fo_dump, f_crawled, f_log, start = 0):
 
 	CONSUMER_KEY = app['c_key']
 	CONSUMER_SECRET = app['c_sec']
@@ -17,26 +17,40 @@ def get_followers_friends(version, app, c, fr_dump, fo_dump, f_crawled, f_log):
 	
 	ret =0;count =0;limit=20
 
-	for i in c:
-		uid = i
+	for i in range(start, len(c)):
+		uid = c[i]
 		
 	# 	#GETTING FOLLOWERS FROM TWITTER by user_id
 		entry = twitter.get_followers(uid,0,version,client)
-		entry2 = twitter.get_followers(uid,0,version,client)
+		#entry2 = twitter.get_followers(uid,0,version,client)
 		limit = int(entry['response']['x-rate-limit-remaining'])
 		#print entry
 		#print entry2
 		if (str(entry['response']['status']) == '200'):
 			fo_dump.write(json.dumps(entry)+"\n")
-			f_crawled.write(str(i) + "\n") 
+			f_crawled.write(str(uid) + "\n") 
 		else:
 			f_log.write("followers: " +json.dumps(entry))
+		#if (str(entry2['response']['status']) == '200'):
+		#	fr_dump.write(json.dumps(entry)+"\n")
+		#	f_crawled.write(str(i) + "\n") 
+		#else:
+		#	f_log.write("followers: " + json.dumps(entry))
+		if(limit<3):
+			endtime = datetime.now()
+			ret =1
+			print "limit reached"
+			break
+		print uid
+		entry2 = twitter.get_followers(uid,0,version,client)
+		limit = int(entry2['response']['x-rate-limit-remaining'])
 		if (str(entry2['response']['status']) == '200'):
 			fr_dump.write(json.dumps(entry)+"\n")
-			f_crawled.write(str(i) + "\n") 
+			f_crawled.write(str(uid) + "\n") 
 		else:
 			f_log.write("followers: " + json.dumps(entry))
-		if(limit<5):
+		print uid
+		if(limit<3):
 			endtime = datetime.now()
 			ret =1
 			print "limit reached"
@@ -82,8 +96,10 @@ fr_dump = open("friends.txt", 'a')
 fo_dump = open("followers.txt", 'a')
 f_crawled = open("crawled.txt", 'a')
 f_log = open("log.txt", 'a')
+c = list(c)
+count = 0
 while(True):
-	ret, limit, count = get_followers_friends(v, set_app[i], c, fr_dump, fo_dump, f_crawled, f_log)
+	ret, limit, count = get_followers_friends(v, set_app[i], c, fr_dump, fo_dump, f_crawled, f_log, count)
 	if ret ==2:
 		print "all authors done"
 		break;
@@ -99,32 +115,3 @@ while(True):
 
 fr_dump.close()
 fo_dump.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

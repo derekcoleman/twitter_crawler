@@ -6,8 +6,8 @@ from datetime import datetime
 import time
 import twitter
 
-def get_followers_friends(version, app, fr_dump, fo_dump, f_crawled, f_log):
-	global proxy_info, users_
+def get_followers_friends(version, app, c, fr_dump, fo_dump, f_crawled, f_log, start = 0):
+	global proxy_info
 	CONSUMER_KEY = app['c_key']
 	CONSUMER_SECRET = app['c_sec']
 	ACCESS_KEY = app['a_key']
@@ -18,23 +18,30 @@ def get_followers_friends(version, app, fr_dump, fo_dump, f_crawled, f_log):
 	
 	ret =0;count =0;limit=20
 	toremove = set()
-	for i in users_:
-		uid = i
+	for i in range(start, len(c)):
+		uid = c[i]
 		
 	# 	#GETTING FOLLOWERS FROM TWITTER by user_id
 		entry = twitter.get_followers(uid,0,version,client)
-		entry2 = twitter.get_followers(uid,0,version,client)
+		#entry2 = twitter.get_followers(uid,0,version,client)
 		limit = int(entry['response']['x-rate-limit-remaining'])
 		#print entry
 		#print entry2
 		if (str(entry['response']['status']) == '200'):
 			fo_dump.write(json.dumps(entry)+"\n")
-			f_crawled.write(str(i) + "\n")
+			f_crawled.write(str(uid) + "\n")
 		else:
 			f_log.write("followers: " +json.dumps(entry) + "\n")
+		if(limit<3):
+			endtime = datetime.now()
+			ret =1
+			print "limit reached"
+			break
+		entry2 = twitter.get_followers(uid,0,version,client)
+		limit = int(entry2['response']['x-rate-limit-remaining'])
 		if (str(entry2['response']['status']) == '200'):
 			fr_dump.write(json.dumps(entry)+"\n")
-			f_crawled.write(str(i) + "\n")
+			f_crawled.write(str(uid) + "\n")
 		else:
 			f_log.write("followers: " + json.dumps(entry) + "\n")
 		if(limit<3):
@@ -42,11 +49,7 @@ def get_followers_friends(version, app, fr_dump, fo_dump, f_crawled, f_log):
 			ret =1
 			print "limit reached"
 			break
-		else:
-			toremove.add(i)
 		count+=1
-	print toremove
-	users_ = users_ - toremove
 	# BREAKING LOOP BECAUSE FILES IS COMPLETE
 	if(limit >=3):
 		ret =2
@@ -63,12 +66,12 @@ while c:
 	b.append(d)
 	c = f.readline()
 f.close()
-users_ = set(a) - set(b)
+c = set(a) - set(b)
 d = []
 
-for i in users_:
-	d.append(users_)
-print len(users_)
+for i in c:
+	d.append(c)
+print len(c)
 conf = ConfigParser.ConfigParser()
 conf.read("keys.ini")
 set_app = []
@@ -91,8 +94,10 @@ fr_dump = open("friends.txt", 'a')
 fo_dump = open("followers.txt", 'a')
 f_crawled = open("crawled.txt", 'a')
 f_log = open("log.txt", 'a')
+c = list(c)
+count = 0
 while(True):
-	ret, limit, count = get_followers_friends(v, set_app[i], fr_dump, fo_dump, f_crawled, f_log)
+	ret, limit, count = get_followers_friends(v, set_app[i], c, fr_dump, fo_dump, f_crawled, f_log, count)
 	if ret ==2:
 		print "all authors done"
 		break;
