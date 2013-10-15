@@ -15,6 +15,8 @@ Code to crawl followers and friends of a list of users
 
 2. Go to the folder _python-oauth2-master_ from terminal, run the command: <code>sudo python setup.py install</code>
 
-3. For crawling through the proxy server, update the proxy settings in _proxy.ini_ file
+3. (Only required if you don't have httplib module) Go to the folder _httplib2-0.8_ from terminal, run the command: <code>sudo python setup.py install</code>
 
-4. Run the command, <code>python crawl.py</code> for non-proxy environment and <code>python crawl_through_proxy.py</code> for proxy environment
+4. For crawling through the proxy server, update the proxy settings in _proxy.ini_ file
+
+5. Run the command, <code>python crawl.py</code> for non-proxy environment and <code>python crawl_through_proxy.py</code> for proxy environment
