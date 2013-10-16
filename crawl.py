@@ -41,7 +41,7 @@ def get_followers_friends(version, app, c, fr_dump, fo_dump, f_crawled, f_log, s
 			ret =1
 			print "limit reached"
 			break
-		print uid
+		#print uid
 		entry2 = twitter.get_followers(uid,0,version,client)
 		limit = int(entry2['response']['x-rate-limit-remaining'])
 		if (str(entry2['response']['status']) == '200'):
@@ -49,7 +49,7 @@ def get_followers_friends(version, app, c, fr_dump, fo_dump, f_crawled, f_log, s
 			f_crawled.write(str(uid) + "\n") 
 		else:
 			f_log.write("followers: " + json.dumps(entry))
-		print uid
+		#print uid
 		if(limit<3):
 			endtime = datetime.now()
 			ret =1
@@ -78,7 +78,6 @@ d = []
 
 for i in c:
 	d.append(c)
-print len(c)
 conf = ConfigParser.ConfigParser()
 conf.read("keys.ini")
 set_app = []
@@ -97,6 +96,7 @@ fo_dump = open("followers.txt", 'a')
 f_crawled = open("crawled.txt", 'a')
 f_log = open("log.txt", 'a')
 c = list(c)
+print "users remaining: " + str(len(c))
 count = 0
 while(True):
 	ret, limit, count = get_followers_friends(v, set_app[i], c, fr_dump, fo_dump, f_crawled, f_log, count)
@@ -112,6 +112,7 @@ while(True):
 			time.sleep(15*60)
 			time_elapsed = time_elapsed + 15
 			i = 0
+			print "users done: " + str(count)
 
 fr_dump.close()
 fo_dump.close()
