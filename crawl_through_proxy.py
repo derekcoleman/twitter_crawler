@@ -20,15 +20,18 @@ def get_followers_friends(version, app, c, start = 0):
 	access_token = oauth.Token(key=ACCESS_KEY, secret=ACCESS_SECRET)
 	client = oauth.Client(consumer, access_token, proxy_info = proxy_info)
 	
-	ret =0;count =0;limit=20
+	ret =0;count =start;limit=20
 	toremove = set()
 	for i in range(start, len(c)):
+		limit = 4
 		uid = c[i]
 		
 	# 	#GETTING FOLLOWERS FROM TWITTER by user_id
 		entry = twitter.get_followers(uid,0,version,client)
 		#entry2 = twitter.get_followers(uid,0,version,client)
-		limit = int(entry['response']['x-rate-limit-remaining'])
+		#print entry
+		if entry['response'].has_key('x-rate-limit-remaining'):
+			limit = int(entry['response']['x-rate-limit-remaining'])
 		#print entry
 		#print entry2
 		if (str(entry['response']['status']) == '200'):
@@ -42,7 +45,8 @@ def get_followers_friends(version, app, c, start = 0):
 			print "limit reached"
 			break
 		entry2 = twitter.get_followers(uid,0,version,client)
-		limit = int(entry2['response']['x-rate-limit-remaining'])
+		if entry2['response'].has_key('x-rate-limit-remaining'):
+			limit = int(entry2['response']['x-rate-limit-remaining'])
 		if (str(entry2['response']['status']) == '200'):
 			fr_dump.write(json.dumps(entry)+"\n")
 			f_crawled.write(str(uid) + "\n")

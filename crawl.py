@@ -18,7 +18,7 @@ def get_followers_friends(version, app, c, start = 0):
 	access_token = oauth.Token(key=ACCESS_KEY, secret=ACCESS_SECRET)
 	client = oauth.Client(consumer, access_token)
 	
-	ret =0;count =0;limit=20
+	ret =0;count =start;limit=20
 
 	for i in range(start, len(c)):
 		uid = c[i]
